@@ -88,16 +88,59 @@ export var config = {
         },
         i18n: {
             loading: { zh_CN: '加载中', default: 'Loading' },
-            changed: { zh_CN: '已更改', default: 'Changed' },
+            changed: { zh_CN: '未保存', default: 'Not Saved' },
+
             error: { zh_CN: '错误', default: 'Error' },
+            unknown_error: { zh_CN: '未知错误', default: 'Unknown Error' },
+            render_error: { zh_CN: '渲染时出错', default: 'Error in Rendering' },
+            save_error: { zh_CN: '保存时出错', default: 'Error in Saving' },
+
             success: { zh_CN: '成功', default: 'Success' },
+            load_success: { zh_CN: '加载完成', default: 'Loading Completed' },
+            render_success: { zh_CN: '渲染完成', default: 'Render Completed' },
+            save_success: { zh_CN: '保存完成', default: 'Save Completed' },
+
             index: { zh_CN: '编号', default: 'Index' },
             preview: { zh_CN: '预览', default: 'Preview' },
+            example: { zh_CN: '示例', default: 'Example' },
+            grammar_help: { zh_CN: '语法帮助', default: 'Grammar Help' },
+            more_example: { zh_CN: '更多示例', default: 'More Example' },
+            wrap: { zh_CN: '切换自动换行', default: 'Toggle Word Wrap' },
+            save: { zh_CN: '保存', default: 'Save' },
+            quicksort: { zh_CN: '快速排序', default: 'Quicksort' },
             pseudocode_js_introduce: {
                 zh_CN: 'pseudocode.js 可以像 LaTeX 一样对算法进行排版',
                 default: 'pseudocode.js enables JavaScript to typeset algorithms as beautifully as LaTeX does',
             },
         },
+        example: // 示例伪代码
+            `% 该快速排序算法摘自《算法导论》第三版 第 7 章
+% This quicksort algorithm is extracted from Chapter 7, Introduction to Algorithms (3rd edition)
+\\begin{algorithm}
+\\caption{Quicksort}
+\\begin{algorithmic}
+\\PROCEDURE{Quicksort}{$A, p, r$}
+    \\IF{$p < r$} 
+        \\STATE $q = $ \\CALL{Partition}{$A, p, r$}
+        \\STATE \\CALL{Quicksort}{$A, p, q - 1$}
+        \\STATE \\CALL{Quicksort}{$A, q + 1, r$}
+    \\ENDIF
+\\ENDPROCEDURE
+\\PROCEDURE{Partition}{$A, p, r$}
+    \\STATE $x = A[r]$
+    \\STATE $i = p - 1$
+    \\FOR{$j = p$ \\TO $r - 1$}
+        \\IF{$A[j] < x$}
+            \\STATE $i = i + 1$
+            \\STATE exchange
+            $A[i]$ with     $A[j]$
+        \\ENDIF
+        \\STATE exchange $A[i]$ with $A[r]$
+    \\ENDFOR
+\\ENDPROCEDURE
+\\end{algorithmic}
+\\end{algorithm}
+`,
     },
 };
 

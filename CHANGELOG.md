@@ -5,3 +5,4 @@
 - 支持分屏预览 | Support split-screen preview.
 - 支持 `KaTeX` 宏定义 | Support `KaTeX` macro definitions.
 - 支持国际化与本地化 | Support internationalization and localization. (`i18n & l10n`)
+- 添加用语法帮助与示例 | Add grammar help and examples.

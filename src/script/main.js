@@ -2,7 +2,10 @@ import {
     config,
     l10n,
 } from "./config.js";
-import { merge } from "./utils.js";
+import {
+    merge,
+    Iterator,
+} from "./utils.js";
 import {
     getConf,
     getBlockAttrs,
@@ -47,21 +50,8 @@ window.onload = async () => {
                 element: document.getElementById('breadcrumb'),
                 status: document.getElementById('status'),
                 type: document.getElementById('type'),
-                crumb: document.getElementById('crumb'),
-                set: (typeText, hpathText, typeTitle, hpathTitle, blockHref, docHref) => {
-                    if (typeText) {
-                        typeText = typeText.replaceAll(/(\n|\r)+/g, ' ')
-                        window.pseudocode.params.breadcrumb.type.innerText = typeText;
-                        window.pseudocode.params.breadcrumb.typeText = typeText;
-                    }
-                    if (hpathText) window.pseudocode.params.breadcrumb.crumb.innerText = hpathText.replaceAll(/(\n|\r)+/g, ' ');
-
-                    if (typeTitle) window.pseudocode.params.breadcrumb.type.setAttribute('title', typeTitle);
-                    if (hpathTitle) window.pseudocode.params.breadcrumb.crumb.setAttribute('title', hpathTitle);
-
-                    if (blockHref) window.pseudocode.params.breadcrumb.type.href = blockHref;
-                    if (docHref) window.pseudocode.params.breadcrumb.crumb.href = docHref;
-                },
+                help: document.getElementById('help'),
+                example: document.getElementById('example'),
             },
             editor: {
                 editor: null,
@@ -102,10 +92,17 @@ window.onload = async () => {
             };
 
             /* 本地化 */
-            window.pseudocode.breadcrumb.status.title = T('loading');
-            window.pseudocode.breadcrumb.type.title = T('pseudocode_js_introduce');
             window.pseudocode.index.title = T('index');
             window.pseudocode.switch.title = T('preview');
+
+            window.pseudocode.breadcrumb.status.title = T('loading');
+            window.pseudocode.breadcrumb.type.title = T('pseudocode_js_introduce');
+
+            window.pseudocode.breadcrumb.help.innerText = T('grammar_help');
+            window.pseudocode.breadcrumb.help.title = T('more_example');
+
+            window.pseudocode.breadcrumb.example.innerText = T('example');
+            window.pseudocode.breadcrumb.example.title = T('quicksort');
 
             /* 导入数据 */
             var attributes = await getBlockAttrs(window.pseudocode.params.id);
@@ -173,7 +170,7 @@ window.onload = async () => {
                         window.pseudocode.breadcrumb.status.title =
                             window.pseudocode.changed
                                 ? T('changed')
-                                : T('success');
+                                : T('render_success');
                     }
                     catch (err) { // 渲染出现错误
                         console.warn(err.message); // 打印错误
@@ -181,13 +178,13 @@ window.onload = async () => {
                         window.pseudocode.html = err.message; // 保存错误信息
                         window.pseudocode.element.innerText = window.pseudocode.html; // 显示错误信息
                         window.pseudocode.breadcrumb.status.innerText = config.pseudocode.mark.status.error; // 设置错误状态标志
-                        window.pseudocode.breadcrumb.status.title = T('error');
+                        window.pseudocode.breadcrumb.status.title = T('render_error');
                     }
                 }
 
-                /* 切换为预览模式 */
-                function preview() {
-                    render();
+                /* 保存 */
+                function save() {
+                    render(); // 保存前需要先渲染, 将渲染后内容一块保存
 
                     /* 保存至块属性 */
                     if (window.pseudocode.changed) {
@@ -198,11 +195,20 @@ window.onload = async () => {
                         setBlockAttrs(window.pseudocode.params.id, attributes).then(response => {
                             if (response?.code === 0) { // 保存成功
                                 window.pseudocode.changed = false;
-                                window.pseudocode.breadcrumb.status.innerText = config.pseudocode.mark.status.success; // 保存成功
-                                window.pseudocode.breadcrumb.status.title = T('success');
+                                window.pseudocode.breadcrumb.status.innerText = config.pseudocode.mark.status.success;
+                                window.pseudocode.breadcrumb.status.title = T('save_success');
+                            }
+                            else { // 保存时出错
+                                window.pseudocode.breadcrumb.status.innerText = config.pseudocode.mark.status.error;
+                                window.pseudocode.breadcrumb.status.title = T('save_error');
                             }
                         });
                     }
+                }
+
+                /* 切换为预览模式 */
+                function preview() {
+                    render();
 
                     /* 显示渲染结果 */
                     window.pseudocode.container.classList.remove('edit');
@@ -300,24 +306,56 @@ window.onload = async () => {
                     setBlockAttrs(window.pseudocode.params.id, attributes);
                 };
 
+                /* 显示示例 */
+                window.pseudocode.breadcrumb.example.onclick = () => {
+                    // console.log(window.pseudocode.editor.editor);
+                    window.pseudocode.editor.editor.setValue(config.pseudocode.example);
+                    render();
+                };
+
                 /* 👇👇 右键菜单项 👇👇 */
                 // REF [IActionDescriptor | Monaco Editor API](https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.IActionDescriptor.html)
+                /* 切换自动换行状态 */
+                const wrap_iter = Iterator(['on', 'off'], true);
+                window.pseudocode.editor.editor.addAction({
+                    id: 'F9E62A24-619E-49EA-A870-B31E6F9D284F', // 菜单项 id
+                    label: T('wrap'), // 菜单项名称
+                    keybindings: [monaco.KeyMod.Alt | monaco.KeyCode.KeyZ], // 绑定快捷键
+                    contextMenuGroupId: '2_view', // 所属菜单的分组
+                    contextMenuOrder: 1, // 菜单分组内排序
+                    run: () => {
+                        window.pseudocode.editor.editor.updateOptions({ wordWrap: wrap_iter.next().value });
+                    }, // 点击后执行的操作
+                });
+
+                /* 保存 */
+                window.pseudocode.editor.editor.addAction({
+                    id: '18730D32-5451-4102-B299-BE281BA929B9', // 菜单项 id
+                    label: T('save'), // 菜单项名称
+                    // REF [KeyMod | Monaco Editor API](https://microsoft.github.io/monaco-editor/api/classes/monaco.KeyMod.html)
+                    // REF [KeyCode | Monaco Editor API](https://microsoft.github.io/monaco-editor/api/enums/monaco.KeyCode.html)
+                    keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS], // 绑定快捷键
+                    contextMenuGroupId: '3_file', // 所属菜单的分组
+                    contextMenuOrder: 1, // 菜单分组内排序
+                    run: () => {
+                        setTimeout(save, 0);
+                    }, // 点击后执行的操作
+                });
                 /* 👆👆 右键菜单项 👆👆 */
 
-
-                /* 切换预览模式 */
+                /* 切换至预览模式 */
                 window.pseudocode.switch.onchange = mode;
                 setTimeout(mode, 0);
 
                 /* 加载成功 */
                 window.pseudocode.breadcrumb.status.innerText = config.pseudocode.mark.status.success; // 加载完成
-                window.pseudocode.breadcrumb.status.title = T('success');
+                window.pseudocode.breadcrumb.status.title = T('load_success');
             });
         }).catch(err => { throw err });
     }
     catch (error) {
         console.error(error);
         document.getElementById('status').innerText = config.pseudocode.mark.status.error;
-        document.getElementById('status').title = T('error');
+        document.getElementById('status').title = T('unknown_error');
     }
 };
