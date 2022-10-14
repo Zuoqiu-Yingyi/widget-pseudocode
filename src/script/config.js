@@ -90,6 +90,7 @@ export var config = {
         i18n: {
             loading: { zh_CN: '加载中', default: 'Loading' },
             changed: { zh_CN: '未保存', default: 'Not Saved' },
+            render: { zh_CN: '渲染', default: 'Render' },
 
             error: { zh_CN: '错误', default: 'Error' },
             unknown_error: { zh_CN: '未知错误', default: 'Unknown Error' },

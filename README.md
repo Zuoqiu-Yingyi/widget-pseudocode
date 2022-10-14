@@ -22,6 +22,16 @@ A [pseudocode.js](https://saswat.padhi.me/pseudocode.js/) widget for Siyuan Note
 
 ## 功能 | FUNCTION
 
+- 预览 | preview
+  - 双击预览面板切换编辑/预览状态  
+    Double-click the preview panel to toggle the edit/preview status.
+- 编辑 | edit
+  - 使用快捷键 <kbd>Alt + Z</kbd> 开启/关闭自动换行功能  
+    Use the shortcut <kbd>Alt + Z</kbd> to enable/disable word wrapping function.
+  - 使用快捷键 <kbd>Ctrl + P</kbd> 切换至预览状态  
+    Use the shortcut <kbd>Ctrl + P</kbd> to toggle to preview state.
+  - 使用快捷键 <kbd>Ctrl + S</kbd> 保存当前编辑区内容  
+    Use the shortcut <kbd>Ctrl + P</kbd> to save the content of the current editing area.
 
 ## 依赖 | DEPENDENCIES
 

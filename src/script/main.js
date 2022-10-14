@@ -321,6 +321,11 @@ window.onload = async () => {
                     render();
                 };
 
+                /* 双击预览面板切换编辑/查看状态 */
+                window.pseudocode.element.ondblclick = () => {
+                    window.pseudocode.switch.click();
+                };
+
                 /* 👇👇 右键菜单项 👇👇 */
                 // REF [IActionDescriptor | Monaco Editor API](https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.IActionDescriptor.html)
                 /* 切换自动换行状态 */
@@ -348,6 +353,18 @@ window.onload = async () => {
                     run: () => {
                         setTimeout(save, 0);
                     }, // 点击后执行的操作
+                });
+
+                /* 渲染 */
+                window.pseudocode.editor.editor.addAction({
+                    id: 'CBC6B14D-F2A6-4073-AB79-7C11D7BB0057', // 菜单项 id
+                    label: T('render'), // 菜单项名称
+                    // REF [KeyMod | Monaco Editor API](https://microsoft.github.io/monaco-editor/api/classes/monaco.KeyMod.html)
+                    // REF [KeyCode | Monaco Editor API](https://microsoft.github.io/monaco-editor/api/enums/monaco.KeyCode.html)
+                    keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyP], // 绑定快捷键
+                    contextMenuGroupId: '3_file', // 所属菜单的分组
+                    contextMenuOrder: 2, // 菜单分组内排序
+                    run: () => window.pseudocode.switch.click(), // 点击后执行的操作
                 });
                 /* 👆👆 右键菜单项 👆👆 */
 
