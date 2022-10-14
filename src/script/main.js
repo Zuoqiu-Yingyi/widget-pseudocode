@@ -6,6 +6,8 @@ import {
     setBlockAttrs,
 } from "./api.js";
 
+import render from "./pseudocode/pseudocode.js";
+
 function registerCompletionItemProvider(language) {
     window.pseudocode.IDisposable?.dispose();
     switch (language) {
@@ -22,7 +24,7 @@ window.onload = async () => {
     // console.log('onload');
     try {
         window.pseudocode = {
-            render: window.pseudocode,
+            render: render,
             height: parseInt(window.frameElement?.style?.height) || 256, // 窗口高度
             changed: false, // 是否发生更改
             code: null, // 代码
