@@ -6,3 +6,4 @@
 - 支持 `KaTeX` 宏定义 | Support `KaTeX` macro definitions.
 - 支持国际化与本地化 | Support internationalization and localization. (`i18n & l10n`)
 - 添加用语法帮助与示例 | Add grammar help and examples.
+- 支持宏自动补全 | Supports macro autocompletion.

@@ -14,18 +14,6 @@ import {
 
 import renderer from "./pseudocode/pseudocode.js";
 
-function registerCompletionItemProvider(language) {
-    window.pseudocode.IDisposable?.dispose();
-    switch (language) {
-        case 'markdown':
-            window.pseudocode.IDisposable = monaco.languages.registerCompletionItemProvider(
-                language,
-                new window.pseudocode.completion.MdCompletionItemProvider(),
-            );
-            break;
-    }
-}
-
 function T(key) {
     return l10n(key, window.pseudocode.params.lang);
 }
@@ -64,9 +52,10 @@ window.onload = async () => {
                     || window.frameElement.parentElement.parentElement.dataset.nodeId, // 块 ID
                 mode: window.pseudocode.url.searchParams.get('mode')
                     || 'none', // 编辑器模式
-                theme: parseInt(window.pseudocode.url.searchParams.get('theme'))
-                    || conf?.data?.conf?.appearance?.mode
-                    || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 1 : 0), // 主题模式
+                theme: parseInt(
+                    window.pseudocode.url.searchParams.get('theme')
+                    ?? conf?.data?.conf?.appearance?.mode
+                    ?? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 1 : 0)), // 主题模式
                 lang: window.pseudocode.url.searchParams.get('lang')
                     || conf?.data?.conf?.lang
                     || 'default', // 语言
@@ -189,9 +178,11 @@ window.onload = async () => {
                     /* 保存至块属性 */
                     if (window.pseudocode.changed) {
                         // attributes['custom-md'] = window.pseudocode.code;
-                        attributes[config.pseudocode.attrs.markdown] = `\`\`\`pseudocode\n${window.pseudocode.code}\n\`\`\``;
-                        attributes[config.pseudocode.attrs.index] = window.pseudocode.index.value;
-                        attributes[config.pseudocode.attrs.html] = window.pseudocode.html;
+                        attributes = {
+                            [config.pseudocode.attrs.index]: window.pseudocode.index.value,
+                            [config.pseudocode.attrs.markdown]: `\`\`\`pseudocode\n${window.pseudocode.code}\n\`\`\``,
+                            [config.pseudocode.attrs.html]: window.pseudocode.html,
+                        };
                         setBlockAttrs(window.pseudocode.params.id, attributes).then(response => {
                             if (response?.code === 0) { // 保存成功
                                 window.pseudocode.changed = false;
@@ -244,7 +235,20 @@ window.onload = async () => {
                     else edit();
                 }
 
+                /* 注册自动补全服务 */
                 window.pseudocode.completion = await import('./completion.js');
+
+                function registerCompletionItemProvider(language) {
+                    window.pseudocode.IDisposable?.dispose();
+                    switch (language) {
+                        case 'markdown':
+                            window.pseudocode.IDisposable = monaco.languages.registerCompletionItemProvider(
+                                language,
+                                new window.pseudocode.completion.PseudocodeCompletionItemProvider(),
+                            );
+                            break;
+                    }
+                }
 
                 const language = window.pseudocode.params.language
                     || 'markdown';
@@ -302,7 +306,11 @@ window.onload = async () => {
                 /* 更改序号 */
                 window.pseudocode.index.onchange = () => {
                     render();
-                    attributes[config.pseudocode.attrs.index] = window.pseudocode.index.value;
+                    attributes = {
+                        [config.pseudocode.attrs.index]: window.pseudocode.index.value,
+                        // [config.pseudocode.attrs.markdown]: `\`\`\`pseudocode\n${window.pseudocode.code}\n\`\`\``,
+                        // [config.pseudocode.attrs.html]: window.pseudocode.html,
+                    };
                     setBlockAttrs(window.pseudocode.params.id, attributes);
                 };
 

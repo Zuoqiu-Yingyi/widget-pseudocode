@@ -1,8 +1,7 @@
 // REF https://github.com/yzhang-gh/vscode-markdown/blob/master/src/completion.ts
 
-import { getConf } from './api.js';
 export {
-    MdCompletionItemProvider,
+    PseudocodeCompletionItemProvider,
 };
 
 const languages = window.monaco.languages;
@@ -80,8 +79,132 @@ function mathEnvCheck(doc, pos) {
 }
 
 // REF [CompletionItemProvider | Monaco Editor API](https://microsoft.github.io/monaco-editor/api/interfaces/monaco.languages.CompletionItemProvider.html)
-class MdCompletionItemProvider {
+class PseudocodeCompletionItemProvider {
 
+    /* 触发符号 */
+    triggerCharacters = [
+        '\\',
+        '\$',
+    ];
+
+    /* 👇伪代码宏👇 */
+    pseudocode = {
+        /* 上下文环境 */
+        envs: [
+            /**算法
+             * \begin{algorithm}
+             *   ( <caption> | <algorithmic> )[0..n]
+             * \end{algorithm}
+             */
+            'algorithm',
+            /**算法具体步骤
+             * \begin{algorithmic}
+             *   ( <ensure> | <require> | <block> )[0..n]
+             * \end{algorithmic}
+             */
+            'algorithmic',
+        ],
+
+        /* 说明 */
+        caption1: [
+            'caption', // \caption{ <close-text> }
+        ],
+
+        /* 接口 */
+        interface0: [
+            'REQUIRE', // \REQUIRE <text>
+            'ENSURE', // \ENSURE <text>
+            'INPUT', // \INPUT <text>
+            'OUTPUT', // \OUTPUT <text>
+        ],
+
+        /* 状态 */
+        statement0: [
+            'STATE', // \STATE <text>
+            'RETURN', // \RETURN <text>
+            'PRINT', // \PRINT <text>
+        ],
+
+        /* 控制 */
+        control2: [
+            'IF', // \IF{<cond>} <block> \ENDIF
+            'FOR', // \FOR{<cond>} <block> \ENDFOR
+            'WHILE', // \WHILE{<cond>} <block> \ENDWHILE
+        ],
+        control2_elif: 'ELSEIF', // \ELIF{<cond>} <block> )[0..n]
+        control2_repeat: 'REPEAT', // \REPEAT <block> \UNTIL{<cond>}
+        /**
+         * \IF{<cond>} <block>
+         * \ELSE <block> )[0..1]
+         * \ENDIF
+         */
+        control3_ifelse: 'IFELSE',
+
+        /* 片段 */
+        snippet3: [
+            'FUNCTION', // \FUNCTION{<name>}{<params>} <block> \ENDFUNCTION
+            'PROCEDURE', // \PROCEDURE{<name>}{<params>} <block> \ENDPROCEDURE
+        ],
+
+        /* 命令 */
+        commands0: [
+            'BREAK', // \BREAK
+            'CONTINUE', // \CONTINUE
+        ],
+
+        /* 评论 */
+        comment1: [
+            'COMMENT', // \COMMENT{<close-text>}
+        ],
+
+        /* 调用 */
+        call2: 'CALL', // \CALL{<name>}({<close-text>})
+
+        /* 符号 */
+        symbol0: [
+            'AND', // \AND
+            'OR', // \OR
+            'NOT', // \NOT
+            'TRUE', // \TRUE
+            'FALSE', // \FALSE
+            'TO', // \TO
+            'DOWNTO', // \DOWNTO
+            'textbackslash', // \textbackslash
+        ],
+
+        /* 大小 */
+        size0: [
+            'tiny', // \tiny
+            'scriptsize', // \scriptsize
+            'footnotesize', // \footnotesize
+            'small', // \small
+            'normalsize', // \normalsize
+            'large', // \large
+            'Large', // \Large
+            'LARGE', // \LARGE
+            'huge', // \huge
+            'HUGE', // \HUGE
+        ],
+
+        /* 字体 */
+        font0: [
+            'rmfamily', // \rmfamily
+            'sffamily', // \sffamily
+            'ttfamily', // \ttfamily
+            'upshape', // \upshape
+            'itshape', // \itshape
+            'slshape', // \slshape
+            'scshape', // \scshape
+        ],
+    };
+
+    /* 伪代码自动补全规则 */
+    pseudocodeCompletions = [];
+
+    pseudocodeCompletionsJSON;
+    pseudocodeSuggestions = () => JSON.parse(this.pseudocodeCompletionsJSON);
+
+    /* 👇数学公式宏👇 */
     //
     // Suffixes explained:
     // \cmd         -> 0
@@ -91,6 +214,8 @@ class MdCompletionItemProvider {
     // Use linebreak to mimic the structure of the KaTeX [Support Table](https://katex.org/docs/supported.html)
     // source https://github.com/KaTeX/KaTeX/blob/main/docs/supported.md
     //
+
+    /* 声调/变音符号 */
     accents1 = [
         'tilde', 'mathring',
         'widetilde', 'overgroup',
@@ -105,6 +230,8 @@ class MdCompletionItemProvider {
         'hat', 'underline', 'underlinesegment',
         'widehat', 'widecheck', 'underbar'
     ];
+
+    /* 分隔符/括号 */
     delimiters0 = [
         'lparen', 'rparen', 'lceil', 'rceil', 'uparrow',
         'lbrack', 'rbrack', 'lfloor', 'rfloor', 'downarrow',
@@ -115,12 +242,16 @@ class MdCompletionItemProvider {
         'lvert', 'rvert', 'lVert', 'rVert', 'backslash',
         'lang', 'rang', 'lt', 'gt', 'llbracket', 'rrbracket', 'lBrace', 'rBrace'
     ];
+
+    /* 分隔符/括号尺寸 */
     delimeterSizing0 = [
         'left', 'big', 'bigl', 'bigm', 'bigr',
         'middle', 'Big', 'Bigl', 'Bigm', 'Bigr',
         'right', 'bigg', 'biggl', 'biggm', 'biggr',
         'Bigg', 'Biggl', 'Biggm', 'Biggr'
     ];
+
+    /* 希腊字母 */
     greekLetters0 = [
         'Alpha', 'Beta', 'Gamma', 'Delta',
         'Epsilon', 'Zeta', 'Eta', 'Theta',
@@ -141,6 +272,8 @@ class MdCompletionItemProvider {
         'varpi', 'varrho', 'varsigma', 'varphi',
         'digamma'
     ];
+
+    /* 其他字母 */
     otherLetters0 = [
         'imath', 'nabla', 'Im', 'Reals',
         'jmath', 'partial', 'image', 'wp',
@@ -152,6 +285,8 @@ class MdCompletionItemProvider {
         'daleth', 'hbar', 'real',
         'eth', 'hslash', 'reals'
     ];
+
+    /* 注释内容 */
     annotation1 = [
         'cancel', 'overbrace',
         'bcancel', 'underbrace',
@@ -160,10 +295,16 @@ class MdCompletionItemProvider {
         'phase',
         'tag', 'tag*'
     ];
+
+    /* 垂直布局  */
     verticalLayout0 = ['atop']
     verticalLayout1 = ['substack']
     verticalLayout2 = ['stackrel', 'overset', 'underset', 'raisebox'];
+
+    /* 重叠 */
     overlap1 = ['mathllap', 'mathrlap', 'mathclap', 'llap', 'rlap', 'clap', 'smash'];
+
+    /* 空白 */
     spacing0 = [
         'thinspace', 'medspace', 'thickspace', 'enspace',
         'quad', 'qquad', 'negthinspace', 'negmedspace',
@@ -173,6 +314,8 @@ class MdCompletionItemProvider {
         'kern', 'mkern', 'mskip', 'hskip',
         'hspace', 'hspace*', 'phantom', 'hphantom', 'vphantom'
     ];
+
+    /* 逻辑关系符号 */
     logicAndSetTheory0 = [
         'forall', 'complement', 'therefore', 'emptyset',
         'exists', 'subset', 'because', 'empty',
@@ -182,6 +325,8 @@ class MdCompletionItemProvider {
         'isin', 'lor', 'leftrightarrow', 'iff',
         'notin', 'ni', 'notni', 'neg', 'lnot'
     ];
+
+    /* 宏指令 */
     macros0 = [
         'def', 'gdef', 'edef', 'xdef', 'let', 'futurelet', 'global',
         'newcommand', 'renewcommand', 'providecommand',
@@ -189,6 +334,8 @@ class MdCompletionItemProvider {
         '@ifstar', '@ifnextchar', '@firstoftwo', '@secondoftwo',
         'relax', 'expandafter', 'noexpand'
     ]
+
+    /* 大型操作符 */
     bigOperators0 = [
         'sum', 'prod', 'bigotimes', 'bigvee',
         'int', 'coprod', 'bigoplus', 'bigwedge',
@@ -196,6 +343,8 @@ class MdCompletionItemProvider {
         'iiint', 'smallint', 'biguplus', 'bigcup',
         'oint', 'oiint', 'oiiint', 'bigsqcup'
     ];
+
+    /* 二进制操作符 */
     binaryOperators0 = [
         'cdot', 'gtrdot', 'pmod',
         'cdotp', 'intercal', 'pod',
@@ -215,10 +364,16 @@ class MdCompletionItemProvider {
         'Cap', 'doublecap', 'oslash', 'wedge',
         'cap', 'doublecup', 'pm', 'plusmn', 'wr'
     ];
+
+    /* 分数 */
     fractions0 = ['over', 'above'];
     fractions2 = ['frac', 'dfrac', 'tfrac', 'cfrac', 'genfrac'];
+
+    /* 二项式系数 */
     binomialCoefficients0 = ['choose'];
     binomialCoefficients2 = ['binom', 'dbinom', 'tbinom', 'brace', 'brack'];
+
+    /* 数学函数 */
     mathOperators0 = [
         'arcsin', 'cosec', 'deg', 'sec',
         'arccos', 'cosh', 'dim', 'sin',
@@ -235,7 +390,11 @@ class MdCompletionItemProvider {
         'inf', 'max', 'sup'
     ];
     mathOperators1 = ['operatorname', 'operatorname*', 'operatornamewithlimits'];
+
+    /* 开方运算符 */
     sqrt1 = ['sqrt'];
+
+    /* 关系符号 */
     relations0 = [
         'doteqdot', 'lessapprox', 'smile',
         'eqcirc', 'lesseqgtr', 'sqsubset',
@@ -270,6 +429,8 @@ class MdCompletionItemProvider {
         'doteq', 'leqq', 'smallfrown', 'Vdash',
         'Doteq', 'leqslant', 'smallsmile', 'Vvdash',
     ];
+
+    /* 不等运算符 */
     negatedRelations0 = [
         'gnapprox', 'ngeqslant', 'nsubseteq', 'precneqq',
         'gneq', 'ngtr', 'nsubseteqq', 'precnsim',
@@ -287,6 +448,8 @@ class MdCompletionItemProvider {
         'ngeq', 'nshortparallel', 'nVdash',
         'ngeqq', 'nsim', 'precnapprox'
     ];
+
+    /* 箭头符号 */
     arrows0 = [
         'circlearrowleft', 'leftharpoonup', 'rArr',
         'circlearrowright', 'leftleftarrows', 'rarr',
@@ -319,6 +482,8 @@ class MdCompletionItemProvider {
         'Leftarrow', 'nRightarrow', 'upuparrows',
         'leftarrowtail', 'nwarrow', 'leftharpoondown', 'Rarr'
     ];
+
+    /* 扩展箭头 */
     extensibleArrows1 = [
         'xleftarrow', 'xrightarrow',
         'xLeftarrow', 'xRightarrow',
@@ -331,12 +496,20 @@ class MdCompletionItemProvider {
         'xtofrom', 'xmapsto',
         'xlongequal'
     ];
+
+    /* 终止符号 */
     braketNotation1 = ['bra', 'Bra', 'ket', 'Ket', 'braket']
+
+    /* 分类符号 */
     classAssignment1 = [
         'mathbin', 'mathclose', 'mathinner', 'mathop',
         'mathopen', 'mathord', 'mathpunct', 'mathrel'
     ];
+
+    /* 颜色 */
     color2 = ['color', 'textcolor', 'colorbox'];
+
+    /* 字体 */
     font0 = ['rm', 'bf', 'it', 'sf', 'tt'];
     font1 = [
         'mathrm', 'mathbf', 'mathit',
@@ -348,14 +521,20 @@ class MdCompletionItemProvider {
         'textsf', 'texttt', 'mathcal', 'mathscr',
         'pmb'
     ];
+
+    /* 尺寸 */
     size0 = [
         'Huge', 'huge', 'LARGE', 'Large', 'large',
         'normalsize', 'small', 'footnotesize', 'scriptsize', 'tiny'
     ];
+
+    /* 样式 */
     style0 = [
         'displaystyle', 'textstyle', 'scriptstyle', 'scriptscriptstyle',
         'limits', 'nolimits', 'verb'
     ];
+
+    /* 符号与标点符号 */
     symbolsAndPunctuation0 = [
         'cdots', 'LaTeX',
         'ddots', 'TeX',
@@ -394,7 +573,11 @@ class MdCompletionItemProvider {
         'circledS', 'spadesuit', 'spades',
         'maltese', 'minuso'
     ];
+
+    /* 调试 */
     debugging0 = ['message', 'errmessage', 'show']
+
+    /* 上下文环境 */
     envs = [
         'matrix', 'array',
         'pmatrix', 'bmatrix',
@@ -412,65 +595,157 @@ class MdCompletionItemProvider {
         'gathered', 'aligned', 'alignedat'
     ]
 
+    /* 数学自动补全规则 */
     mathCompletions = [];
-    triggerCharacters = [
-        '\\',
-    ];
+
     mathCompletionsJSON;
-    suggestions = () => JSON.parse(this.mathCompletionsJSON);
+    mathSuggestions = () => JSON.parse(this.mathCompletionsJSON);
 
     constructor() {
-        // \cmd
-        let c1 = Array.from(new Set(
-            [
-                ...this.delimiters0, ...this.delimeterSizing0,
-                ...this.greekLetters0, ...this.otherLetters0,
-                ...this.spacing0, ...this.verticalLayout0,
-                ...this.logicAndSetTheory0, ...this.macros0, ...this.bigOperators0,
-                ...this.binaryOperators0, ...this.binomialCoefficients0,
-                ...this.fractions0, ...this.mathOperators0,
-                ...this.relations0, ...this.negatedRelations0,
-                ...this.arrows0, ...this.font0, ...this.size0,
-                ...this.style0, ...this.symbolsAndPunctuation0,
-                ...this.debugging0
-            ]
-        )).map(cmd => {
+        /* 👇伪代码环境👇 */
+        // \cmd 无参数
+        let p0 = Array.from(new Set([
+            ...this.pseudocode.interface0,
+            ...this.pseudocode.statement0,
+            ...this.pseudocode.commands0,
+            ...this.pseudocode.symbol0,
+            ...this.pseudocode.size0,
+            ...this.pseudocode.font0,
+        ])).map(cmd => {
             let item = new CompletionItem('\\' + cmd, CompletionItemKind.Function);
             item.insertText = cmd;
             return item;
         });
-        // \cmd{$1}
-        let c2 = Array.from(new Set(
-            [
-                ...this.accents1, ...this.annotation1,
-                ...this.verticalLayout1, ...this.overlap1, ...this.spacing1,
-                ...this.mathOperators1, ...this.sqrt1,
-                ...this.extensibleArrows1, ...this.font1,
-                ...this.braketNotation1, ...this.classAssignment1
-            ]
-        )).map(cmd => {
-            let item = new CompletionItem('\\' + cmd, CompletionItemKind.Function);
+
+        // \cmd{$1} 一个参数
+        let p1 = Array.from(new Set([
+            ...this.pseudocode.caption1,
+            ...this.pseudocode.comment1,
+        ])).map(cmd => {
+            let item = new CompletionItem(`\\${cmd}`, CompletionItemKind.Function);
             // [Has SnippetString been removed? · Issue #1454 · microsoft/monaco-editor · GitHub](https://github.com/microsoft/monaco-editor/issues/1454)
-            // item.insertText = new SnippetString(`${cmd}\{$1\}`);
-            item.insertText = `${cmd}\{$1\}`;
+            item.insertText = `${cmd}{$1}`;
             return item;
         });
-        // \cmd{$1}{$2}
-        let c3 = Array.from(new Set(
-            [
-                ...this.verticalLayout2, ...this.binomialCoefficients2,
-                ...this.fractions2, ...this.color2
-            ]
-        )).map(cmd => {
-            let item = new CompletionItem('\\' + cmd, CompletionItemKind.Function);
-            // item.insertText = new SnippetString(`${cmd}\{$1\}\{$2\}`);
-            item.insertText = `${cmd}\{$1\}\{$2\}`;
+
+        // \cmd{$1} $2 \endcmd 两个参数
+        let p2 = Array.from(new Set([
+            ...this.pseudocode.control2,
+        ])).map(cmd => {
+            let item = new CompletionItem(`\\${cmd}`, CompletionItemKind.Function);
+            item.insertText = `${cmd}{$1}\n\t$2\n\\END${cmd}`;
             return item;
         });
+
+        let p2_elif = new CompletionItem(`\\${this.pseudocode.control2_elif}`, CompletionItemKind.Function);
+        p2_elif.insertText = `${this.pseudocode.control2_elif}{$1}\n\t$2`;
+
+        let p2_repeat = new CompletionItem(`\\${this.pseudocode.control2_repeat}`, CompletionItemKind.Function);
+        p2_repeat.insertText = `${this.pseudocode.control2_repeat}\n\t$2\n\\UNTIL{$1}`;
+
+        let p2_call = new CompletionItem(`\\${this.pseudocode.call2}`, CompletionItemKind.Function);
+        p2_call.insertText = `${this.pseudocode.call2}{$1}{$2}`;
+
+        // \cmd{$1}{$2} $3 \endcmd
+        let p3 = Array.from(new Set([
+            ...this.pseudocode.snippet3,
+        ])).map(cmd => {
+            let item = new CompletionItem(`\\${cmd}`, CompletionItemKind.Function);
+            item.insertText = `${cmd}{$1}{$2}\n\t$3\n\\END${cmd}`;
+            return item;
+        });
+
+        let p3_ifelse = new CompletionItem(`\\${this.pseudocode.control3_ifelse}`, CompletionItemKind.Function);
+        p3_ifelse.insertText = `IF{$1}\n\t$2\n\\else\n\t$3\n\\ENDIF`;
+
+        /* 上下文环境 */
+        let p_envs = new CompletionItem('\\begin', CompletionItemKind.Snippet);
+        p_envs.insertText = `begin{\${1|${this.pseudocode.envs.join(',')}|}}\n\t$2\n\\end{$1}`;
+
+        // 所有自动补全项
+        this.pseudocodeCompletions = [
+            ...p0,
+            ...p1,
+            ...p2,
+            p2_elif,
+            p2_repeat,
+            p2_call,
+            ...p3,
+            p3_ifelse,
+            p_envs,
+        ];
+
+
+        /* 👇数学公式环境👇 */
+        // \cmd 无参数
+        let c1 = Array.from(new Set([
+            ...this.arrows0,
+            ...this.bigOperators0,
+            ...this.binaryOperators0,
+            ...this.binomialCoefficients0,
+            ...this.debugging0,
+            ...this.delimeterSizing0,
+            ...this.delimiters0,
+            ...this.fractions0,
+            ...this.font0,
+            ...this.greekLetters0,
+            ...this.logicAndSetTheory0,
+            ...this.macros0,
+            ...this.mathOperators0,
+            ...this.negatedRelations0,
+            ...this.otherLetters0,
+            ...this.relations0,
+            ...this.size0,
+            ...this.spacing0,
+            ...this.style0,
+            ...this.symbolsAndPunctuation0,
+            ...this.verticalLayout0,
+        ])).map(cmd => {
+            let item = new CompletionItem(`\\${cmd}`, CompletionItemKind.Function);
+            item.insertText = cmd;
+            return item;
+        });
+
+        // \cmd{$1} 一个参数
+        let c2 = Array.from(new Set([
+            ...this.accents1,
+            ...this.annotation1,
+            ...this.braketNotation1,
+            ...this.classAssignment1,
+            ...this.font1,
+            ...this.extensibleArrows1,
+            ...this.mathOperators1,
+            ...this.overlap1,
+            ...this.spacing1,
+            ...this.sqrt1,
+            ...this.verticalLayout1,
+        ])).map(cmd => {
+            let item = new CompletionItem(`\\${cmd}`, CompletionItemKind.Function);
+            // [Has SnippetString been removed? · Issue #1454 · microsoft/monaco-editor · GitHub](https://github.com/microsoft/monaco-editor/issues/1454)
+            // item.insertText = new SnippetString(`${cmd}{$1}`);
+            item.insertText = `${cmd}{$1}`;
+            return item;
+        });
+
+        // \cmd{$1}{$2} 两个参数
+        let c3 = Array.from(new Set([
+            ...this.binomialCoefficients2,
+            ...this.color2,
+            ...this.fractions2,
+            ...this.verticalLayout2,
+        ])).map(cmd => {
+            let item = new CompletionItem(`\\${cmd}`, CompletionItemKind.Function);
+            // item.insertText = new SnippetString(`${cmd}{$1}{$2}`);
+            item.insertText = `${cmd}{$1}{$2}`;
+            return item;
+        });
+
+        // \begin{$1} $2 \end{$1} 上下文环境
         let envSnippet = new CompletionItem('\\begin', CompletionItemKind.Snippet);
         // envSnippet.insertText = new SnippetString('begin{${1|' + this.envs.join(',') + '|}}\n\t$2\n\\end{$1}');
         envSnippet.insertText = `begin{\${1|${this.envs.join(',')}|}}\n\t$2\n\\end{$1}`;
 
+        // 自定义宏
         // Import macros from configurations
         var macroItems = [];
         for (const [cmd, expansion] of Object.entries(window.pseudocode.params.katexMacros)) {
@@ -485,11 +760,13 @@ class MdCompletionItemProvider {
                 }
             }
 
-            // item.insertText = new SnippetString(cmd.slice(1) + [...Array(numArgs).keys()].map(i => `\{$${i + 1}\}`).join(""));
-            item.insertText = cmd.slice(1) + [...Array(numArgs).keys()].map(i => `\{$${i + 1}\}`).join("");
+            // item.insertText = new SnippetString(cmd.slice(1) + [...Array(numArgs).keys()].map(i => `{$${i + 1}}`).join(""));
+            item.insertText = cmd.slice(1) + [...Array(numArgs).keys()].map(i => `{\$${i + 1}}`).join("");
             // console.log(item.insertText);
             macroItems.push(item);
         }
+
+        // 所有自动补全项
         this.mathCompletions = [
             ...c1,
             ...c2,
@@ -498,7 +775,18 @@ class MdCompletionItemProvider {
             ...macroItems,
         ];
 
+        // 排序
         // Sort
+        for (const item of this.pseudocodeCompletions) {
+            const label = typeof item.label === "string" ? item.label : item.label.label;
+            item.sortText = label.replace(/[a-zA-Z]/g, (c) => {
+                if (/[a-z]/.test(c)) {
+                    return `0${c}`;
+                } else {
+                    return `1${c.toLowerCase()}`;
+                }
+            });
+        }
         for (const item of this.mathCompletions) {
             const label = typeof item.label === "string" ? item.label : item.label.label;
             item.sortText = label.replace(/[a-zA-Z]/g, (c) => {
@@ -510,6 +798,8 @@ class MdCompletionItemProvider {
             });
         }
 
+        // 生成 json 字符串, 用于深拷贝
+        this.pseudocodeCompletionsJSON = JSON.stringify(this.pseudocodeCompletions);
         this.mathCompletionsJSON = JSON.stringify(this.mathCompletions);
     }
 
@@ -521,8 +811,7 @@ class MdCompletionItemProvider {
         // console.log(lineTextBefore);
 
         let matches = lineTextBefore.match(/\\+$/);
-        if (
-            //// ends with an odd number of backslashes
+        if ( // ends with an odd number of backslashes
             matches !== null
             && matches[0].length % 2 !== 0
         ) {
@@ -539,17 +828,24 @@ class MdCompletionItemProvider {
                         // suggestions: this.mathCompletions,
                         // suggestions: [...this.mathCompletions],
                         // suggestions: JSON.parse(JSON.stringify(this.mathCompletions)),
-                        suggestions: this.suggestions(),
+                        suggestions: this.mathSuggestions(),
                     };
                 default:
                     return {
-                        suggestions: [],
+                        suggestions: this.pseudocodeSuggestions(),
                     };
             }
         }
-        else {
+        else if (/[^\$]\$$/.test(lineTextBefore)) {
+            let math_inline = new CompletionItem('\$ math-inline \$', CompletionItemKind.Function);
+            let math_block = new CompletionItem('\$\$ math-block \$\$', CompletionItemKind.Function);
+            math_inline.insertText = `$1\$`;
+            math_block.insertText = `\$\n\t$1\n\$\$`;
             return {
-                suggestions: [],
+                suggestions: [
+                    math_inline,
+                    // math_block,
+                ],
             };
         }
     }
