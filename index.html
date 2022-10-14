@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <title>pseudocode</title>
+    <link rel="stylesheet" href="./static/pseudocode/pseudocode.min.css">
+    <link rel="stylesheet" href="./src/style/main.css">
+
+    <script defer type="text/javascript" src="/stage/protyle/js/katex/katex.min.js"></script>
+    <script defer type="text/javascript" src="./static/pseudocode/pseudocode.min.js"></script>
+    <script defer type="text/javascript" src="./static/vs/loader.js"></script>
+    <script defer type="module" src="./src/script/main.js"></script>
+</head>
+
+<body>
+    <div id="breadcrumb">
+        <span id="status">🔍</span>
+        <a id="type" target="_blank" title=""></a>
+        <a id="crumb" target="_blank" title="pseudocode">pseudocode</a>
+    </div>
+    <div id="toolbar">
+        <input id="index" type="number" min="1" value="1" title="Index" />
+        <select id="picker">
+            <option selected>markdown</option>
+        </select>
+        <input id="switch" type="checkbox" title="Preview" checked />
+    </div>
+    <div id="container">
+        <div id="editor" style="display: none;"></div>
+        <div id="pseudocode" style="display: none;"></div>
+    </div>
+</body>
+
+</html>

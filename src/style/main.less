@@ -1,0 +1,130 @@
+:root {
+    --header-height: 1.5em;
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        --background-color: #EEE;
+        --foreground-color: #333A;
+        --foreground-color-hover: #333;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-color: #1E1E1E;
+        --foreground-color: #CCCC;
+        --foreground-color-hover: #CCC;
+    }
+}
+
+html,
+body {
+    margin: 0;
+    border: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    color: var(--foreground-color);
+    background-color: var(--background-color);
+}
+
+#breadcrumb,
+#container {
+    position: fixed;
+    width: 100%;
+}
+
+#breadcrumb {
+    height: var(--header-height);
+    display: inline-block;
+    white-space: nowrap;
+    z-index: 1;
+
+    >* {
+        display: inline-block;
+        font-size: 1em;
+        line-height: var(--header-height);
+        white-space: nowrap;
+        color: var(--foreground-color);
+    }
+
+    >*:hover {
+        color: var(--foreground-color-hover);
+    }
+}
+
+#toolbar {
+    position: fixed;
+
+    top: 0;
+    right: 0;
+    z-index: 2;
+    height: var(--header-height);
+    padding: 0.25em;
+
+    box-sizing: border-box;
+    // line-height: 1em;
+    // text-align: center;
+}
+
+#switch {
+    width: 1em;
+    height: 1em;
+    margin: 0;
+}
+
+#picker {
+    position: relative;
+    top: -0.25em;
+
+    // height: 1.5em;
+
+    border-width: 0;
+    border-radius: 0.25em;
+}
+
+#index {
+    position: relative;
+    top: -0.25em;
+
+    width: 3em;
+    // height: 1.5em;
+    // padding: 0;
+
+    border-width: 0;
+    border-radius: 0.25em;
+}
+
+#status {
+    width: 1em;
+    height: 1em;
+    text-align: center;
+    color: white;
+}
+
+#type {
+    text-decoration: underline;
+}
+
+#crumb {
+    text-decoration: none;
+    /* padding-left: 1em; */
+}
+
+#container {
+    position: flex;
+    top: var(--header-height);
+    height: calc(100% - var(--header-height));
+    overflow: auto;
+}
+
+#editor {
+    width: 100%;
+    height: 100%;
+}
+
+#pseudocode {
+    width: 100%;
+    height: auto;
+}
