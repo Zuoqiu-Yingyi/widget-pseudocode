@@ -100,3 +100,30 @@ body {
   width: 100%;
   height: auto;
 }
+.preview #editor {
+  display: none;
+}
+.preview #pseudocode {
+  display: block;
+}
+.edit #editor {
+  display: block;
+}
+.edit #pseudocode {
+  display: none;
+}
+@media screen and (min-width: 960px) {
+  .edit #editor {
+    display: inline-block;
+    width: 49%;
+    height: 99%;
+    border-right: 2px solid var(--foreground-color);
+  }
+  .edit #pseudocode {
+    display: inline-block;
+    vertical-align: top;
+    width: 49%;
+    height: 99%;
+    padding-left: 0.5%;
+  }
+}

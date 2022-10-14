@@ -6,7 +6,7 @@ import {
     setBlockAttrs,
 } from "./api.js";
 
-import render from "./pseudocode/pseudocode.js";
+import renderer from "./pseudocode/pseudocode.js";
 
 function registerCompletionItemProvider(language) {
     window.pseudocode.IDisposable?.dispose();
@@ -24,7 +24,7 @@ window.onload = async () => {
     // console.log('onload');
     try {
         window.pseudocode = {
-            render: render,
+            renderer: renderer,
             height: parseInt(window.frameElement?.style?.height) || 256, // 窗口高度
             changed: false, // 是否发生更改
             code: null, // 代码
@@ -35,6 +35,7 @@ window.onload = async () => {
             picker: document.getElementById('picker'),
             switch: document.getElementById('switch'),
             element: document.getElementById('pseudocode'),
+            container: document.getElementById('container'),
             breadcrumb: {
                 element: document.getElementById('breadcrumb'),
                 status: document.getElementById('status'),
@@ -132,11 +133,11 @@ window.onload = async () => {
             require([
                 'vs/editor/editor.main',
             ], async () => {
-                /* 切换为预览模式 */
-                function preview() {
+                /* 渲染 */
+                function render() {
                     window.pseudocode.code = window.pseudocode.editor.editor.getValue();
-                    // console.log(window.pseudocode.render);
-                    window.pseudocode.html = window.pseudocode.render.renderToString(
+                    // console.log(window.pseudocode.renderer);
+                    window.pseudocode.html = window.pseudocode.renderer.renderToString(
                         window.pseudocode.code,
                         merge(
                             {},
@@ -147,13 +148,17 @@ window.onload = async () => {
                         ),
                     );
                     window.pseudocode.element.innerHTML = window.pseudocode.html;
+                }
+                /* 切换为预览模式 */
+                function preview() {
+                    render();
 
                     /* 保存至块属性 */
                     if (window.pseudocode.changed) {
                         // attributes['custom-md'] = window.pseudocode.code;
                         attributes[config.pseudocode.attrs.markdown] = `\`\`\`pseudocode\n${window.pseudocode.code}\n\`\`\``;
                         attributes[config.pseudocode.attrs.index] = window.pseudocode.index.value;
-                        // attributes[config.pseudocode.attrs.html] = window.pseudocode.html;
+                        attributes[config.pseudocode.attrs.html] = window.pseudocode.html;
                         setBlockAttrs(window.pseudocode.params.id, attributes).then(response => {
                             if (response?.code === 0) { // 保存成功
                                 window.pseudocode.changed = false;
@@ -163,8 +168,8 @@ window.onload = async () => {
                     }
 
                     /* 显示渲染结果 */
-                    window.pseudocode.editor.element.style.display = 'none';
-                    window.pseudocode.element.style.display = 'block';
+                    window.pseudocode.container.classList.remove('edit');
+                    window.pseudocode.container.classList.add('preview');
 
                     /* 根据渲染结果调整挂件块高度 */
                     setTimeout(() => {
@@ -184,8 +189,8 @@ window.onload = async () => {
 
                 /* 切换为编辑 */
                 function edit() {
-                    window.pseudocode.element.style.display = 'none';
-                    window.pseudocode.editor.element.style.display = 'block';
+                    window.pseudocode.container.classList.remove('preview');
+                    window.pseudocode.container.classList.add('edit');
                 }
 
                 /* 应用当前模式 */
@@ -235,6 +240,9 @@ window.onload = async () => {
                  * REF [onDidChangeModelContent](https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.IStandaloneCodeEditor.html#onDidChangeModelContent)
                  */
                 window.pseudocode.editor.editor.onDidChangeModelContent(() => {
+                    if (window.matchMedia("(min-width: 960px)").matches) { // 分屏预览
+                        render();
+                    }
                     if (window.pseudocode.changed) return; // 之前已经发生更改
                     else {
                         // 之前没有发生更改
