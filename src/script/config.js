@@ -25,9 +25,9 @@ export var config = {
             },
         },
         IStandaloneEditorConstructionOptions: {
-            // autoClosingBrackets: 'languageDefined', // 是否自动添加后括号(包括中括号)
-            // autoClosingDelete: 'languageDefined', // 是否自动删除后括号(包括中括号)
-            // autoClosingQuotes: 'languageDefined', // 是否自动添加后单引号 双引号
+            autoClosingBrackets: 'languageDefined', // 是否自动添加后括号(包括中括号)
+            autoClosingDelete: 'languageDefined', // 是否自动删除后括号(包括中括号)
+            autoClosingQuotes: 'languageDefined', // 是否自动添加后单引号 双引号
             automaticLayout: true, // 是否自动布局
             bracketPairColorization: { // 匹配括号颜色
                 enabled: true,
