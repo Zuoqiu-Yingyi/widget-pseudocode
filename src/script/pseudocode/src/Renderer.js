@@ -164,7 +164,7 @@ TextEnvironment.prototype.renderToHTML = function (backend) {
                     throw 'No math backend found. Please setup KaTeX or MathJax.';
                 }
                 else if (backend.name === 'katex') {
-                    this._html.putHTML(backend.driver.renderToString(text));
+                    this._html.putHTML(backend.driver.renderToString(text, { macros: backend.macros }));
                 }
                 else if (backend.name === 'mathjax') {
                     this._html.putText('$' + text + '$');
@@ -428,6 +428,8 @@ function RendererOptions(options) {
     if (options.captionCount !== undefined)
         Renderer.captionCount = options.captionCount;
     this.titlePrefix = options.titlePrefix !== undefined ? options.titlePrefix : 'Algorithm';
+    /* CUSTOM: 数学公式宏 */
+    this.katexMacros = options.katexMacros ?? {};
 }
 
 RendererOptions.prototype._parseEmVal = function (emVal) {
@@ -468,6 +470,7 @@ function Renderer(parser, options) {
         this.backend = {
             'name': 'katex',
             'driver': katex,
+            'macros': this._options.katexMacros,
         };
     }
     else if (typeof MathJax !== 'undefined') {

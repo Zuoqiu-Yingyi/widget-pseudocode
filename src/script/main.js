@@ -1,4 +1,7 @@
-import { config } from "./config.js";
+import {
+    config,
+    l10n,
+} from "./config.js";
 import { merge } from "./utils.js";
 import {
     getConf,
@@ -18,6 +21,10 @@ function registerCompletionItemProvider(language) {
             );
             break;
     }
+}
+
+function T(key) {
+    return l10n(key, window.pseudocode.params.lang);
 }
 
 window.onload = async () => {
@@ -94,6 +101,12 @@ window.onload = async () => {
                 ),
             };
 
+            /* 本地化 */
+            window.pseudocode.breadcrumb.status.title = T('loading');
+            window.pseudocode.breadcrumb.type.title = T('pseudocode_js_introduce');
+            window.pseudocode.index.title = T('index');
+            window.pseudocode.switch.title = T('preview');
+
             /* 导入数据 */
             var attributes = await getBlockAttrs(window.pseudocode.params.id);
             if (attributes) {
@@ -133,22 +146,45 @@ window.onload = async () => {
             require([
                 'vs/editor/editor.main',
             ], async () => {
+
                 /* 渲染 */
                 function render() {
                     window.pseudocode.code = window.pseudocode.editor.editor.getValue();
                     // console.log(window.pseudocode.renderer);
-                    window.pseudocode.html = window.pseudocode.renderer.renderToString(
-                        window.pseudocode.code,
-                        merge(
-                            {},
-                            config.pseudocode.PseudocodeRenderOptions,
-                            {
-                                captionCount: window.pseudocode.index.value - 1,
-                            },
-                        ),
-                    );
-                    window.pseudocode.element.innerHTML = window.pseudocode.html;
+                    // console.log(window.pseudocode.params.katexMacros);
+                    try {
+                        window.pseudocode.html = window.pseudocode.renderer.renderToString(
+                            window.pseudocode.code,
+                            merge(
+                                {},
+                                config.pseudocode.PseudocodeRenderOptions,
+                                {
+                                    captionCount: window.pseudocode.index.value - 1,
+                                    katexMacros: window.pseudocode.params.katexMacros,
+                                },
+                            ),
+                        );
+                        window.pseudocode.element.style.backgroundColor = 'transparent';
+                        window.pseudocode.element.innerHTML = window.pseudocode.html;
+                        window.pseudocode.breadcrumb.status.innerText =
+                            window.pseudocode.changed
+                                ? config.pseudocode.mark.status.changed
+                                : config.pseudocode.mark.status.success;
+                        window.pseudocode.breadcrumb.status.title =
+                            window.pseudocode.changed
+                                ? T('changed')
+                                : T('success');
+                    }
+                    catch (err) { // 渲染出现错误
+                        console.warn(err.message); // 打印错误
+                        window.pseudocode.element.style.backgroundColor = '#F001'; // 设置预览背景颜色
+                        window.pseudocode.html = err.message; // 保存错误信息
+                        window.pseudocode.element.innerText = window.pseudocode.html; // 显示错误信息
+                        window.pseudocode.breadcrumb.status.innerText = config.pseudocode.mark.status.error; // 设置错误状态标志
+                        window.pseudocode.breadcrumb.status.title = T('error');
+                    }
                 }
+
                 /* 切换为预览模式 */
                 function preview() {
                     render();
@@ -163,6 +199,7 @@ window.onload = async () => {
                             if (response?.code === 0) { // 保存成功
                                 window.pseudocode.changed = false;
                                 window.pseudocode.breadcrumb.status.innerText = config.pseudocode.mark.status.success; // 保存成功
+                                window.pseudocode.breadcrumb.status.title = T('success');
                             }
                         });
                     }
@@ -181,7 +218,7 @@ window.onload = async () => {
                                 + content.getBoundingClientRect().top
                             );
                         }
-                        console.log(window.pseudocode.height);
+                        // console.log(window.pseudocode.height);
                         if (window.frameElement?.style)
                             window.frameElement.style.height = `${window.pseudocode.height}px`;
                     }, 0);
@@ -240,14 +277,13 @@ window.onload = async () => {
                  * REF [onDidChangeModelContent](https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.IStandaloneCodeEditor.html#onDidChangeModelContent)
                  */
                 window.pseudocode.editor.editor.onDidChangeModelContent(() => {
-                    if (window.matchMedia("(min-width: 960px)").matches) { // 分屏预览
-                        render();
-                    }
-                    if (window.pseudocode.changed) return; // 之前已经发生更改
-                    else {
-                        // 之前没有发生更改
+                    if (window.pseudocode.changed === false) { // 之前没有发生更改
                         window.pseudocode.changed = true;
-                        window.pseudocode.breadcrumb.status.innerText = config.pseudocode.mark.status.edited;
+                        window.pseudocode.breadcrumb.status.innerText = config.pseudocode.mark.status.changed;
+                        window.pseudocode.breadcrumb.status.title = T('changed');
+                    }
+                    if (window.matchMedia("(min-width: 960px)").matches) { // 分屏预览时刷新
+                        render();
                     }
                 });
 
@@ -259,6 +295,7 @@ window.onload = async () => {
 
                 /* 更改序号 */
                 window.pseudocode.index.onchange = () => {
+                    render();
                     attributes[config.pseudocode.attrs.index] = window.pseudocode.index.value;
                     setBlockAttrs(window.pseudocode.params.id, attributes);
                 };
@@ -274,11 +311,13 @@ window.onload = async () => {
 
                 /* 加载成功 */
                 window.pseudocode.breadcrumb.status.innerText = config.pseudocode.mark.status.success; // 加载完成
+                window.pseudocode.breadcrumb.status.title = T('success');
             });
         }).catch(err => { throw err });
     }
     catch (error) {
         console.error(error);
         document.getElementById('status').innerText = config.pseudocode.mark.status.error;
+        document.getElementById('status').title = T('error');
     }
 };

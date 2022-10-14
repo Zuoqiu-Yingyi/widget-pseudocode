@@ -18,7 +18,7 @@ export var config = {
         },
         mark: {
             status: { // 状态
-                edited: '📝', // 已编辑且未保存标记
+                changed: '📝', // 已编辑且未保存标记
                 error: '✖', // 错误标记
                 success: '✅', // 成功标记
             },
@@ -62,8 +62,8 @@ export var config = {
             lineNumberPunc: ':', // 行号后缀
             noEnd: false, // 不显示块结束标志, 例如 `end if`
             captionCount: 0, // 标题计数器重置数字
-        },
-        i18n: {
+            /* 附加选项: 全局宏 */
+            katexMacros: {}, // KaTeX 宏
         },
         attrs: {
             index: 'custom-pseudocode-index',
@@ -86,8 +86,26 @@ export var config = {
                 'default': 'vs',
             },
         },
+        i18n: {
+            loading: { zh_CN: '加载中', default: 'Loading' },
+            changed: { zh_CN: '已更改', default: 'Changed' },
+            error: { zh_CN: '错误', default: 'Error' },
+            success: { zh_CN: '成功', default: 'Success' },
+            index: { zh_CN: '编号', default: 'Index' },
+            preview: { zh_CN: '预览', default: 'Preview' },
+            pseudocode_js_introduce: {
+                zh_CN: 'pseudocode.js 可以像 LaTeX 一样对算法进行排版',
+                default: 'pseudocode.js enables JavaScript to typeset algorithms as beautifully as LaTeX does',
+            },
+        },
     },
 };
+
+export function l10n(key, lang) {
+    return config.pseudocode.i18n?.[key]?.[lang]
+        ?? config.pseudocode.i18n?.[key].default
+        ?? '';
+}
 
 try {
     const custom = import('/widgets/custom.js');
