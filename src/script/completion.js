@@ -682,7 +682,7 @@ class PseudocodeCompletionItemProvider {
 
         /* 上下文环境 */
         let p_envs = new CompletionItem('\\begin', CompletionItemKind.Snippet);
-        p_envs.insertText = `begin{\${1|${this.pseudocode.envs.join(',')}|}}\n\t$2\n\\end{$1}`;
+        p_envs.insertText = `begin{\${1|${this.pseudocode.envs.join(',')}|}}\n$2\n\\end{$1}`;
 
         // 所有自动补全项
         this.pseudocodeCompletions = [
@@ -765,7 +765,7 @@ class PseudocodeCompletionItemProvider {
         // \begin{$1} $2 \end{$1} 上下文环境
         let envSnippet = new CompletionItem('\\begin', CompletionItemKind.Snippet);
         // envSnippet.insertText = new SnippetString('begin{${1|' + this.envs.join(',') + '|}}\n\t$2\n\\end{$1}');
-        envSnippet.insertText = `begin{\${1|${this.envs.join(',')}|}}\n\t$2\n\\end{$1}`;
+        envSnippet.insertText = `begin{\${1|${this.envs.join(',')}|}} $2 \\end{$1}`;
 
         // 自定义宏
         // Import macros from configurations
@@ -828,6 +828,7 @@ class PseudocodeCompletionItemProvider {
     // REF https://microsoft.github.io/monaco-editor/api/interfaces/monaco.languages.CompletionItemProvider.html#provideCompletionItems
     // REF [Vue3中使用Monaco Editor代码编辑器记录——主动触发代码补全功能](https://blog.csdn.net/sebeefe/article/details/126080413)
     async provideCompletionItems(model, position, context, token) {
+        const result = { suggestions: null };
         // const lineTextBefore = model.lineAt(position.line).text.substring(0, position.character);
         const lineTextBefore = model.getLineContent(position.lineNumber).substring(0, position.column - 1);
         // console.log(lineTextBefore);
@@ -842,20 +843,18 @@ class PseudocodeCompletionItemProvider {
                └────────────────┘ */
             switch (mathEnvCheck(model, position)) {
                 case 'inline':
-                // console.log('inline');
+                    // console.log('inline');
+                    // result.suggestions = this.mathCompletions;
+                    // result.suggestions = [...this.mathCompletions];
+                    // result.suggestions = JSON.parse(JSON.stringify(this.mathCompletions));
+                    result.suggestions = this.mathSuggestions();
+                    break;
                 case 'display':
                     // console.log('display');
-                    // return this.mathCompletions;
-                    return {
-                        // suggestions: this.mathCompletions,
-                        // suggestions: [...this.mathCompletions],
-                        // suggestions: JSON.parse(JSON.stringify(this.mathCompletions)),
-                        suggestions: this.mathSuggestions(),
-                    };
+                    result.suggestions = [];
+                    break;
                 default:
-                    return {
-                        suggestions: this.pseudocodeSuggestions(),
-                    };
+                    result.suggestions = this.pseudocodeSuggestions();
             }
         }
         // else if (/(^|[^\$]+)\$$/.test(lineTextBefore)) {
@@ -863,13 +862,14 @@ class PseudocodeCompletionItemProvider {
         //     let math_block = new CompletionItem('\$\$ math-block \$\$', CompletionItemKind.Function);
         //     math_inline.insertText = `$1\$`;
         //     math_block.insertText = `\$\n\t$1\n\$\$`;
-        //     return {
-        //         suggestions: [
-        //             math_inline,
-        //             // math_block,
-        //         ],
-        //     };
+        //     result.suggestions = [
+        //         math_inline,
+        //         // math_block,
+        //     ];
         // }
-        else return { suggestions: [] };
+        else {
+            result.suggestions = [];
+        }
+        return result;
     }
 }
