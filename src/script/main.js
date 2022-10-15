@@ -51,7 +51,7 @@ window.onload = async () => {
                 id: window.pseudocode.url.searchParams.get('id')
                     || window.frameElement.parentElement.parentElement.dataset.nodeId, // 块 ID
                 mode: window.pseudocode.url.searchParams.get('mode')
-                    || 'none', // 编辑器模式
+                    || 'preview', // 编辑器模式
                 theme: parseInt(
                     window.pseudocode.url.searchParams.get('theme')
                     ?? conf?.data?.conf?.appearance?.mode
@@ -60,7 +60,7 @@ window.onload = async () => {
                     || conf?.data?.conf?.lang
                     || 'default', // 语言
                 language: window.pseudocode.url.searchParams.get('language')
-                    || 'markdown', // 语言模式
+                    || 'pseudocode', // 语言模式
                 tabSize: parseInt(window.pseudocode.url.searchParams.get('tabSize'))
                     ?? conf?.data?.conf?.editor?.codeTabSpaces
                     ?? 4, // 缩进空格数量
@@ -235,24 +235,26 @@ window.onload = async () => {
                     else edit();
                 }
 
-                /* 注册自动补全服务 */
-                window.pseudocode.completion = await import('./completion.js');
-
-                function registerCompletionItemProvider(language) {
-                    window.pseudocode.IDisposable?.dispose();
-                    switch (language) {
-                        case 'markdown':
-                            window.pseudocode.IDisposable = monaco.languages.registerCompletionItemProvider(
-                                language,
-                                new window.pseudocode.completion.PseudocodeCompletionItemProvider(),
-                            );
-                            break;
-                    }
-                }
-
+                /* 语言模式 */
                 const language = window.pseudocode.params.language
-                    || 'markdown';
+                    || 'pseudocode';
                 window.pseudocode.picker.value = language;
+
+                /* 注册语言 */
+                monaco.languages.register({ id: language });
+
+                /* 注册自动补全服务 */
+                window.pseudocode.editor.completion = await import('./completion.js');
+                window.pseudocode.editor.IDisposable = monaco.languages.registerCompletionItemProvider(
+                    language,
+                    new window.pseudocode.editor.completion.PseudocodeCompletionItemProvider(),
+                );
+
+                /* 注册语法 */
+                window.pseudocode.editor.language = await import('./language.js');
+                monaco.languages.setLanguageConfiguration(language, window.pseudocode.editor.language.conf);
+                monaco.languages.setMonarchTokensProvider(language, window.pseudocode.editor.language.language);
+
 
                 // 编辑器配置
                 const options = {};
@@ -279,9 +281,6 @@ window.onload = async () => {
                 );
                 // console.log(options);
 
-                /* 设置 markdown 文件的自动补全 */
-                registerCompletionItemProvider(language);
-
                 /**
                  * 文件是否发生更改
                  * REF [onDidChangeModelContent](https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.IStandaloneCodeEditor.html#onDidChangeModelContent)
@@ -296,12 +295,6 @@ window.onload = async () => {
                         render();
                     }
                 });
-
-                /* 更改语言标签 */
-                window.pseudocode.picker.onchange = () => {
-                    monaco.editor.setModelLanguage(window.pseudocode.editor.editor.getModel(), window.pseudocode.picker.value);
-                    registerCompletionItemProvider(window.pseudocode.picker.value);
-                };
 
                 /* 更改序号 */
                 window.pseudocode.index.onchange = () => {

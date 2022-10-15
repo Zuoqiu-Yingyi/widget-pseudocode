@@ -191,10 +191,31 @@ class PseudocodeCompletionItemProvider {
             'rmfamily', // \rmfamily
             'sffamily', // \sffamily
             'ttfamily', // \ttfamily
+
             'upshape', // \upshape
             'itshape', // \itshape
             'slshape', // \slshape
             'scshape', // \scshape
+
+            'bfseries', // \bfseries
+            'mdseries', // \mdseries
+            'lfseries', // \lfseries
+        ],
+
+        font1: [
+            'textnormal', // \textnormal{<text>}
+            'uppercase', // \uppercase{<text>}
+            'lowercase', // \lowercase{<text>}
+            'textrm', // \textrm{<text>}
+            'textsf', // \textsf{<text>}
+            'texttt', // \texttt{<text>}
+            'textup', // \textup{<text>}
+            'textit', // \textit{<text>}
+            'textsl', // \textsl{<text>}
+            'textsc', // \textsc{<text>}
+            'textbf', // \textbf{<text>}
+            'textmd', // \textmd{<text>}
+            'textlf', // \textlf{<text>}
         ],
     };
 
@@ -621,6 +642,7 @@ class PseudocodeCompletionItemProvider {
         let p1 = Array.from(new Set([
             ...this.pseudocode.caption1,
             ...this.pseudocode.comment1,
+            ...this.pseudocode.font1,
         ])).map(cmd => {
             let item = new CompletionItem(`\\${cmd}`, CompletionItemKind.Function);
             // [Has SnippetString been removed? · Issue #1454 · microsoft/monaco-editor · GitHub](https://github.com/microsoft/monaco-editor/issues/1454)
@@ -836,17 +858,18 @@ class PseudocodeCompletionItemProvider {
                     };
             }
         }
-        else if (/[^\$]\$$/.test(lineTextBefore)) {
-            let math_inline = new CompletionItem('\$ math-inline \$', CompletionItemKind.Function);
-            let math_block = new CompletionItem('\$\$ math-block \$\$', CompletionItemKind.Function);
-            math_inline.insertText = `$1\$`;
-            math_block.insertText = `\$\n\t$1\n\$\$`;
-            return {
-                suggestions: [
-                    math_inline,
-                    // math_block,
-                ],
-            };
-        }
+        // else if (/(^|[^\$]+)\$$/.test(lineTextBefore)) {
+        //     let math_inline = new CompletionItem('\$ math-inline \$', CompletionItemKind.Function);
+        //     let math_block = new CompletionItem('\$\$ math-block \$\$', CompletionItemKind.Function);
+        //     math_inline.insertText = `$1\$`;
+        //     math_block.insertText = `\$\n\t$1\n\$\$`;
+        //     return {
+        //         suggestions: [
+        //             math_inline,
+        //             // math_block,
+        //         ],
+        //     };
+        // }
+        else return { suggestions: [] };
     }
 }
