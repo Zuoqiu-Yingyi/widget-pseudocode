@@ -181,7 +181,7 @@ window.onload = async () => {
                         attributes = {
                             [config.pseudocode.attrs.index]: window.pseudocode.index.value,
                             [config.pseudocode.attrs.markdown]: `\`\`\`pseudocode\n${window.pseudocode.code}\n\`\`\``,
-                            [config.pseudocode.attrs.html]: window.pseudocode.html,
+                            [config.pseudocode.attrs.html]: `<div><link rel="stylesheet" href="${window.pseudocode.url.pathname}src/style/pseudocode.css">${window.pseudocode.html}</div>`,
                         };
                         setBlockAttrs(window.pseudocode.params.id, attributes).then(response => {
                             if (response?.code === 0) { // 保存成功
@@ -302,7 +302,7 @@ window.onload = async () => {
                     attributes = {
                         [config.pseudocode.attrs.index]: window.pseudocode.index.value,
                         // [config.pseudocode.attrs.markdown]: `\`\`\`pseudocode\n${window.pseudocode.code}\n\`\`\``,
-                        // [config.pseudocode.attrs.html]: window.pseudocode.html,
+                        [config.pseudocode.attrs.html]: `<link rel="stylesheet" href="${window.pseudocode.url.pathname}src/style/pseudocode.css">${window.pseudocode.html}`,
                     };
                     setBlockAttrs(window.pseudocode.params.id, attributes);
                 };
