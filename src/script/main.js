@@ -28,6 +28,7 @@ window.onload = async () => {
             changed: false, // 是否发生更改
             code: null, // 代码
             html: null, // 渲染后的 DOM
+            style: null, // 压缩后的 CSS 样式
 
             url: new URL(window.location.href),
             index: document.getElementById('index'),
@@ -47,6 +48,10 @@ window.onload = async () => {
                 element: document.getElementById('editor'),
             },
         };
+        window.pseudocode.style = await fetch(config.pseudocode.export.style.local);
+        if (window.pseudocode.style && window.pseudocode.style.status === 200) {
+            window.pseudocode.style = await window.pseudocode.style.text();
+        }
         const conf = await getConf();
         window.pseudocode.params = {
             id: window.pseudocode.url.searchParams.get('id')
@@ -156,6 +161,15 @@ window.onload = async () => {
             'vs/editor/editor.main',
         ], async () => {
 
+            /* 导出 */
+            function exportMD() {
+                return `\`\`\`pseudocode\n${window.pseudocode.code}\n\`\`\``;
+            }
+            function exportHTML() {
+                return `<div><link rel="stylesheet" href="${config.pseudocode.export.style.web}"><link rel="stylesheet" href="${config.pseudocode.export.style.local}">${window.pseudocode.html}</div>`;
+                // return `<div><style>${window.pseudocode.style}</style>${window.pseudocode.html}</div>`;
+            }
+
             /* 渲染 */
             function render() {
                 window.pseudocode.code = window.pseudocode.editor.editor.getValue();
@@ -197,8 +211,8 @@ window.onload = async () => {
                     // attributes['custom-md'] = window.pseudocode.code;
                     attributes = {
                         [config.pseudocode.attrs.index]: window.pseudocode.index.value,
-                        [config.pseudocode.attrs.markdown]: `\`\`\`pseudocode\n${window.pseudocode.code}\n\`\`\``,
-                        [config.pseudocode.attrs.html]: `<div><link rel="stylesheet" href="${window.pseudocode.url.pathname}src/style/pseudocode.css">${window.pseudocode.html}</div>`,
+                        [config.pseudocode.attrs.markdown]: exportMD(),
+                        [config.pseudocode.attrs.html]: exportHTML(),
                     };
                     setBlockAttrs(window.pseudocode.params.id, attributes).then(response => {
                         if (response?.code === 0) { // 保存成功
@@ -318,8 +332,8 @@ window.onload = async () => {
                 render();
                 attributes = {
                     [config.pseudocode.attrs.index]: window.pseudocode.index.value,
-                    // [config.pseudocode.attrs.markdown]: `\`\`\`pseudocode\n${window.pseudocode.code}\n\`\`\``,
-                    [config.pseudocode.attrs.html]: `<link rel="stylesheet" href="${window.pseudocode.url.pathname}src/style/pseudocode.css">${window.pseudocode.html}`,
+                    // [config.pseudocode.attrs.markdown]: exportMD(),
+                    [config.pseudocode.attrs.html]: exportHTML(),
                 };
                 setBlockAttrs(window.pseudocode.params.id, attributes);
             };

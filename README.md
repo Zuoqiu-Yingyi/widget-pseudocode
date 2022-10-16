@@ -25,15 +25,19 @@ A [pseudocode.js](https://saswat.padhi.me/pseudocode.js/) widget for Siyuan Note
 - 预览 | preview
   - 双击预览面板切换编辑/预览状态  
     Double-click the preview panel to toggle the edit/preview status.
-- 编辑 | edit
+- 编辑 | Edit
   - 使用快捷键 <kbd>Alt + Z</kbd> 开启/关闭自动换行功能  
     Use the shortcut <kbd>Alt + Z</kbd> to enable/disable word wrapping function.
   - 使用快捷键 <kbd>Ctrl + P</kbd> 切换至预览状态  
     Use the shortcut <kbd>Ctrl + P</kbd> to toggle to preview state.
   - 使用快捷键 <kbd>Ctrl + S</kbd> 保存当前编辑区内容  
     Use the shortcut <kbd>Ctrl + P</kbd> to save the content of the current editing area.
-  - 使用快捷键 <kbd>Ctrl + Shift + S</kbd> 复制分享链接  
-    Use the shortcut <kbd>Ctrl + P</kbd> to copy the share link.
+- 导出 | Export
+  - 在笔记中导出为 HTML 或 PDF 时保留渲染后的样式  
+    Preserves the rendered style when exporting to HTML or PDF in notes.
+- 分享 | Share
+  - 编辑模式中使用快捷键 <kbd>Ctrl + Shift + S</kbd> 复制分享链接  
+    Use the shortcut <kbd>Ctrl + P</kbd> to copy the share link in edit mode.
 
 ## 依赖 | DEPENDENCIES
 

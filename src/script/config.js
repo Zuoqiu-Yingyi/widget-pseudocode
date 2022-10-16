@@ -15,6 +15,12 @@ export var config = {
             origin: 'http://127.0.0.1:6806',
             pathname: '/widgets/pseudocode/',
         },
+        export: {
+            style: {
+                web: 'https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css',
+                local: '/widgets/pseudocode/static/pseudocode/pseudocode.min.css',
+            },
+        },
         regs: {
             id: /^\d{14}\-[0-9a-z]{7}$/, // 块 ID 正则表达式
             query: /^\s*\{\{(.*)\}\}\s*$/, // 嵌入块正则表达式
