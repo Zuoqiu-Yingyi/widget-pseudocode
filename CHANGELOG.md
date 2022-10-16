@@ -12,3 +12,4 @@
 - 支持代码高亮 | support code highlighting.
 - 调整公式自动补全模板的换行与缩进 | Adjust the wrapping and indentation of the formula auto-completion template.
 - `data-export-html` 中引用样式文件 | Reference style files in `data-export-html`.
+- 新增使用链接分享功能 | Added the function to share with link.

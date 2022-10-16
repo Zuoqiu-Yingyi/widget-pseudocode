@@ -32,6 +32,8 @@ A [pseudocode.js](https://saswat.padhi.me/pseudocode.js/) widget for Siyuan Note
     Use the shortcut <kbd>Ctrl + P</kbd> to toggle to preview state.
   - 使用快捷键 <kbd>Ctrl + S</kbd> 保存当前编辑区内容  
     Use the shortcut <kbd>Ctrl + P</kbd> to save the content of the current editing area.
+  - 使用快捷键 <kbd>Ctrl + Shift + S</kbd> 复制分享链接  
+    Use the shortcut <kbd>Ctrl + P</kbd> to copy the share link.
 
 ## 依赖 | DEPENDENCIES
 

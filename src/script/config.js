@@ -10,6 +10,11 @@ export var config = {
                 '"幼圆"',
             ],
         },
+        share: { // 自定义 URL 分享链接
+            custom: false, // 默认为思源笔记的 url, 设置为 true 后 origin 与 pathname 才能生效
+            origin: 'http://127.0.0.1:6806',
+            pathname: '/widgets/pseudocode/',
+        },
         regs: {
             id: /^\d{14}\-[0-9a-z]{7}$/, // 块 ID 正则表达式
             query: /^\s*\{\{(.*)\}\}\s*$/, // 嵌入块正则表达式
@@ -74,10 +79,14 @@ export var config = {
         MAP: {
             LANGS: {
                 zh_CN: 'zh-cn',
+                zh_CN: 'zh-cn',
                 zh_CNT: 'zh-tw',
                 en_US: '',
                 fr_FR: 'fr',
                 default: '',
+
+                'zh-CN': 'zh_CN',
+                'zh-Hans': 'zh_CN',
             },
             THEMES: {
                 0: 'vs',
@@ -109,6 +118,7 @@ export var config = {
             more_example: { zh_CN: '更多示例', default: 'More Example' },
             wrap: { zh_CN: '切换自动换行', default: 'Toggle Word Wrap' },
             save: { zh_CN: '保存', default: 'Save' },
+            share: { zh_CN: '复制分享链接', default: 'Copy the Share Link' },
             quicksort: { zh_CN: '快速排序', default: 'Quicksort' },
             pseudocode_js_introduce: {
                 zh_CN: 'pseudocode.js 可以像 LaTeX 一样对算法进行排版',
