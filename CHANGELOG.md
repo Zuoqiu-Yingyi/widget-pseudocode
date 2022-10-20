@@ -1,5 +1,7 @@
 # 更改日志 | CHANGE LOG
 
+- 使用 `<style>` 标签设置 `data-export-html` 导出样式 | Using `<style>` tag to set the `data-export-html` export style.
+
 ## v0.1.0/2022-10-17
 
 - 实现编辑与渲染基础功能 | Implement basic editing and rendering functions.

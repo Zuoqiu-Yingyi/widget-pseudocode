@@ -166,8 +166,8 @@ window.onload = async () => {
                 return `\`\`\`pseudocode\n${window.pseudocode.code}\n\`\`\``;
             }
             function exportHTML() {
-                return `<div><link rel="stylesheet" href="${config.pseudocode.export.style.web}"><link rel="stylesheet" href="${config.pseudocode.export.style.local}">${window.pseudocode.html}</div>`;
-                // return `<div><style>${window.pseudocode.style}</style>${window.pseudocode.html}</div>`;
+                // return `<div><link rel="stylesheet" href="${config.pseudocode.export.style.web}"><link rel="stylesheet" href="${config.pseudocode.export.style.local}">${window.pseudocode.html}</div>`;
+                return `<div><style>${window.pseudocode.style}</style>${window.pseudocode.html}</div>`;
             }
 
             /* 渲染 */
