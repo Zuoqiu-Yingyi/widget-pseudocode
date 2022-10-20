@@ -11,8 +11,8 @@ export var config = {
             ],
         },
         share: { // 自定义 URL 分享链接
-            custom: false, // 默认为思源笔记的 url, 设置为 true 后 origin 与 pathname 才能生效
-            origin: 'http://127.0.0.1:6806',
+            custom: false, // false: (默认)为思源笔记的 url, true: origin 与 pathname 所设置的地址, 
+            origin: 'https://publish.zuoqiu.space',
             pathname: '/widgets/pseudocode/',
         },
         export: {

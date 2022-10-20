@@ -1,6 +1,7 @@
 # 更改日志 | CHANGE LOG
 
 - 使用 `<style>` 标签设置 `data-export-html` 导出样式 | Using `<style>` tag to set the `data-export-html` export style.
+- 更新 URL 分享链接 | Update the URL sharing link.
 
 ## v0.1.0/2022-10-17
 
