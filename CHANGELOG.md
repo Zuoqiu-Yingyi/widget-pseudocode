@@ -1,5 +1,8 @@
 # 更改日志 | CHANGE LOG
 
+## v0.1.1/2022-11-06
+
+- [v0.1.0 <=> v0.1.1](https://github.com/Zuoqiu-Yingyi/widget-pseudocode/compare/v0.1.0...v0.1.1)
 - 使用 `<style>` 标签设置 `data-export-html` 导出样式 | Using `<style>` tag to set the `data-export-html` export style.
 - 更新 URL 分享链接 | Update the URL sharing link.
 - 为 `data-export-html` 导出样式的 `<style>` 标签添加 `scoped` 属性 | Add the `scoped` attribute to the `<style>` tag for the `data-export-html` export style.
