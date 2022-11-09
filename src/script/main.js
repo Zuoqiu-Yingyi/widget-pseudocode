@@ -10,7 +10,9 @@ import {
 import {
     getConf,
     getBlockAttrs,
+    getBlockIndex,
     setBlockAttrs,
+    querySameBlocks,
 } from "./api.js";
 
 import renderer from "./pseudocode/pseudocode.js";
@@ -112,14 +114,18 @@ window.onload = async () => {
             attributes = attributes.data ?? {};
             // window.pseudocode.code = attributes['custom-md'] ?? "";
             const lines = attributes[config.pseudocode.attrs.markdown]?.split('\n');
-            const index = attributes[config.pseudocode.attrs.index] ?? 1;
+            const index = attributes[config.pseudocode.attrs.index];
             if (lines && lines.length >= 2) {
                 lines.shift();
                 lines.pop();
                 window.pseudocode.code = lines.join('\n');
             }
 
-            window.pseudocode.index.value = index;
+            if (index) window.pseudocode.index.value = index;
+            else {
+                window.pseudocode.index.value = 0;
+                await setBlockAttrs(window.pseudocode.params.id, { [config.pseudocode.attrs.index]: window.pseudocode.index.value });
+            }
         }
 
         /* 初始化渲染配置 */
@@ -131,7 +137,7 @@ window.onload = async () => {
             window.pseudocode.params.PseudocodeRenderOptions,
             config.pseudocode.PseudocodeRenderOptions,
             {
-                captionCount: window.pseudocode.index.value - 1,
+                captionCount: parseInt(window.pseudocode.index.value) - 1,
                 katexMacros: window.pseudocode.params.katexMacros,
             },
             window.pseudocode.params.body?.PseudocodeRenderOptions ?? {},
@@ -171,7 +177,33 @@ window.onload = async () => {
             }
 
             /* 渲染 */
-            function render() {
+            async function render() {
+                /* 自动调整编号 */
+                if (window.pseudocode.params.PseudocodeRenderOptions.captionCount < 0) {
+                    /* 获取当前块所在文档所有的 psedocode 挂件块 */
+                    const ids = await querySameBlocks(window.pseudocode.params.id);
+                    if (ids?.data?.length > 0) {
+                        const blocks = [];
+                        /* 获取块的索引 */
+                        for (let i = 0; i < ids.data.length; ++i) {
+                            const id = ids.data[i].id;
+                            const index = await getBlockIndex(id);
+                            if (index?.data) {
+                                blocks.push({
+                                    id,
+                                    index: index.data,
+                                })
+                            }
+                        }
+                        /* 根据索引号排序 */
+                        blocks.sort((x, y) => x.index - y.index);
+                        /* 查询当前块序号 */
+                        window.pseudocode.params.PseudocodeRenderOptions.captionCount = blocks.findIndex((x, ...args) => x.id === window.pseudocode.params.id);
+                    }
+                    else {
+                        window.pseudocode.params.PseudocodeRenderOptions.captionCount = 0;
+                    }
+                }
                 window.pseudocode.code = window.pseudocode.editor.editor.getValue();
                 window.pseudocode.params.IStandaloneEditorConstructionOptions.value = window.pseudocode.code;
                 // console.log(window.pseudocode.renderer);
@@ -203,8 +235,8 @@ window.onload = async () => {
             }
 
             /* 保存 */
-            function save() {
-                render(); // 保存前需要先渲染, 将渲染后内容一块保存
+            async function save() {
+                await render(); // 保存前需要先渲染, 将渲染后内容一块保存
 
                 /* 保存至块属性 */
                 if (window.pseudocode.changed) {
@@ -229,8 +261,8 @@ window.onload = async () => {
             }
 
             /* 切换为预览模式 */
-            function preview() {
-                render();
+            async function preview() {
+                await render();
 
                 /* 显示渲染结果 */
                 window.pseudocode.container.classList.remove('edit');
@@ -327,9 +359,9 @@ window.onload = async () => {
             });
 
             /* 更改序号 */
-            window.pseudocode.index.onchange = () => {
-                window.pseudocode.params.PseudocodeRenderOptions.captionCount = window.pseudocode.index.value - 1;
-                render();
+            window.pseudocode.index.onchange = async () => {
+                window.pseudocode.params.PseudocodeRenderOptions.captionCount = parseInt(window.pseudocode.index.value) - 1;
+                await render();
                 attributes = {
                     [config.pseudocode.attrs.index]: window.pseudocode.index.value,
                     // [config.pseudocode.attrs.markdown]: exportMD(),
@@ -342,7 +374,10 @@ window.onload = async () => {
             window.pseudocode.breadcrumb.example.onclick = () => {
                 // console.log(window.pseudocode.editor.editor);
                 window.pseudocode.editor.editor.setValue(config.pseudocode.example);
-                render();
+                if (window.pseudocode.switch.checked) { // 预览模式
+                    preview();
+                }
+                save();
             };
 
             /* 双击预览面板切换编辑/查看状态 */

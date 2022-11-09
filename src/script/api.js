@@ -6,8 +6,10 @@ export {
     getNotebookConf,
     getFullHPathByID,
     queryBlock,
+    querySameBlocks,
     queryAsset,
     updateBlock,
+    getBlockIndex,
     getBlockKramdown,
     exportMdContent,
     getDocHistoryContent,
@@ -61,6 +63,15 @@ async function queryBlock(id) {
     });
 }
 
+/* 查询当前文档下所有同类型的块(通过属性/字段) */
+async function querySameBlocks(id, value = null, name = config.pseudocode.attrs.index) {
+    return request('/api/query/sql', {
+        stmt: value
+            ? `SELECT B0.id FROM blocks AS B0 WHERE B0.id IN ( SELECT A.block_id FROM attributes AS A WHERE A.name = '${name}' AND A.value = '${value}' ) AND B0.root_id IN ( SELECT B1.root_id FROM blocks AS B1 WHERE B1.id = '${id}' );`
+            : `SELECT B0.id FROM blocks AS B0 WHERE B0.id IN ( SELECT A.block_id FROM attributes AS A WHERE A.name = '${name}') AND B0.root_id IN ( SELECT B1.root_id FROM blocks AS B1 WHERE B1.id = '${id}' );`,
+    });
+}
+
 async function queryAsset(path) {
     return request('/api/query/sql', {
         stmt: `SELECT * FROM assets WHERE path = '${path}' ORDER BY id`,
@@ -72,6 +83,12 @@ async function updateBlock(id, data, dataType = 'markdown') {
         id,
         data,
         dataType,
+    });
+}
+
+async function getBlockIndex(id) {
+    return request('/api/block/getBlockIndex', {
+        id,
     });
 }
 

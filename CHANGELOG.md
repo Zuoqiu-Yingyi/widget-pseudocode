@@ -1,6 +1,7 @@
 # 更改日志 | CHANGE LOG
 
 - 修复手动设置序号错误问题 | Fix the issue of manually setting the serial number error.
+- 编号设置为 `0` 时启用自动编号 | Enable automatic numbering when the serial number is set to `0`.
 
 ## v0.1.1/2022-11-06
 

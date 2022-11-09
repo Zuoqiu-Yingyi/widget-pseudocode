@@ -22,6 +22,15 @@ A [pseudocode.js](https://saswat.padhi.me/pseudocode.js/) widget for Siyuan Note
 
 ## 功能 | FUNCTION
 
+- 自动编号 | Auto numbering
+  - 当右上角编号设置为 `0` 时开启自动编号  
+    Turn on auto-numbering when the top-right number is set to `0`.
+    - 默认开启 | Default on
+    - 在加载/渲染/保存时刷新  
+      Refresh when loading/rendering/saving.
+- 手动编号 | Manual numbering
+  - 当右上角编号设置为非 `0` 值时开启手动编号  
+    Turn on manual numbering when the top-right number is set to a value other than `0`.
 - 预览 | preview
   - 双击预览面板切换编辑/预览状态  
     Double-click the preview panel to toggle the edit/preview status.
