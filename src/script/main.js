@@ -328,7 +328,7 @@ window.onload = async () => {
 
             /* 更改序号 */
             window.pseudocode.index.onchange = () => {
-                window.pseudocode.params.PseudocodeRenderOptions.captionCount = window.pseudocode.index.value;
+                window.pseudocode.params.PseudocodeRenderOptions.captionCount = window.pseudocode.index.value - 1;
                 render();
                 attributes = {
                     [config.pseudocode.attrs.index]: window.pseudocode.index.value,

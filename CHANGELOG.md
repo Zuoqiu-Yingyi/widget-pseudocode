@@ -1,5 +1,7 @@
 # 更改日志 | CHANGE LOG
 
+- 修复手动设置序号错误问题 | Fix the issue of manually setting the serial number error.
+
 ## v0.1.1/2022-11-06
 
 - [v0.1.0 <=> v0.1.1](https://github.com/Zuoqiu-Yingyi/widget-pseudocode/compare/v0.1.0...v0.1.1)
