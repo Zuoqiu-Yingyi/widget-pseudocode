@@ -1,6 +1,7 @@
 # 更改日志 | CHANGE LOG
 
 - 在 `README.md` 中添加依赖版本 | Add dependency version in `README.md`.
+- 优化主题配色的加载方案 | Optimize the loading scheme of the theme color scheme.
 
 ## v0.2.0/2022-11-14
 

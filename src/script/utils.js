@@ -5,6 +5,7 @@ export {
     merge, // 递归合并对象
     getRelativePath,
     copyToClipboard,
+    setThemeMode,
 };
 
 // REF [js - 对象递归合并merge - zc-lee - 博客园](https://www.cnblogs.com/zc-lee/p/15873611.html)
@@ -128,4 +129,12 @@ function copyToClipboard(text) {
             textarea.remove();
         });
     }
+}
+
+/**
+ * 设置主题模式
+ * @params {String} mode - 主题模式
+ */
+function setThemeMode(mode) { 
+    document.documentElement.dataset.themeMode = mode;
 }

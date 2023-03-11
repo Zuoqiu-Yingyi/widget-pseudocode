@@ -1,19 +1,15 @@
 :root {
   --header-height: 1.5em;
 }
-@media (prefers-color-scheme: light) {
-  :root {
-    --background-color: #EEE;
-    --foreground-color: #333A;
-    --foreground-color-hover: #333;
-  }
+:root[data-theme-mode=light] {
+  --background-color: #EEE;
+  --foreground-color: #333A;
+  --foreground-color-hover: #333;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background-color: #1E1E1E;
-    --foreground-color: #CCCC;
-    --foreground-color-hover: #CCC;
-  }
+:root[data-theme-mode=dark] {
+  --background-color: #1E1E1E;
+  --foreground-color: #CCCC;
+  --foreground-color-hover: #CCC;
 }
 html,
 body {

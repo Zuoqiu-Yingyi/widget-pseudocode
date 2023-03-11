@@ -6,6 +6,7 @@ import {
     merge,
     Iterator,
     copyToClipboard,
+    setThemeMode,
 } from "./utils.js";
 import {
     getConf,
@@ -107,6 +108,17 @@ window.onload = async () => {
 
         window.pseudocode.breadcrumb.example.innerText = T('example');
         window.pseudocode.breadcrumb.example.title = T('quicksort');
+
+        /* 设置主题 */
+        setThemeMode((() => {
+            switch (window.pseudocode.params.theme) {
+                default:
+                case 0:
+                    return 'light';
+                case 1:
+                    return 'dark';
+            }
+        })());
 
         /* 导入数据 */
         var attributes = await getBlockAttrs(window.pseudocode.params.id);
