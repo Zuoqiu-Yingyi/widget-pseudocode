@@ -50,10 +50,10 @@ A [pseudocode.js](https://saswat.padhi.me/pseudocode.js/) widget for Siyuan Note
 
 ## 依赖 | DEPENDENCIES
 
-| 作者 \| Author                                    | 项目 \| Project                                                           | 许可证 \| License                                                                 |
-| :------------------------------------------------ | :------------------------------------------------------------------------ | :-------------------------------------------------------------------------------- |
-| **[Microsoft](https://github.com/microsoft)**     | [microsoft/monaco-editor](https://github.com/microsoft/monaco-editor)     | *[MIT License](https://github.com/microsoft/monaco-editor/blob/main/LICENSE.txt)* |
-| **[SaswatPadhi](https://github.com/SaswatPadhi)** | [SaswatPadhi/pseudocode.js](https://github.com/SaswatPadhi/pseudocode.js) | *[MIT license](https://github.com/SaswatPadhi/pseudocode.js/blob/master/LICENSE)*                  |
+| 作者 \| Author                                    | 项目 \| Project                                                           | 版本 \| Version | 许可证 \| License                                                                 |
+| :------------------------------------------------ | :------------------------------------------------------------------------ | :-------------- | :-------------------------------------------------------------------------------- |
+| **[Microsoft](https://github.com/microsoft)**     | [microsoft/monaco-editor](https://github.com/microsoft/monaco-editor)     | `0.34.0`        | *[MIT License](https://github.com/microsoft/monaco-editor/blob/main/LICENSE.txt)* |
+| **[SaswatPadhi](https://github.com/SaswatPadhi)** | [SaswatPadhi/pseudocode.js](https://github.com/SaswatPadhi/pseudocode.js) | `2.2.0`         | *[MIT license](https://github.com/SaswatPadhi/pseudocode.js/blob/master/LICENSE)* |
 
 注: 按引入时间排序
 

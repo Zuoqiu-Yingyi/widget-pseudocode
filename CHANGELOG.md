@@ -1,5 +1,7 @@
 # 更改日志 | CHANGE LOG
 
+- 在 `README.md` 中添加依赖版本 | Add dependency version in `README.md`.
+
 ## v0.2.0/2022-11-14
 
 - [v0.1.1 <=> v0.2.0](https://github.com/Zuoqiu-Yingyi/widget-pseudocode/compare/v0.1.1...v0.2.0)
